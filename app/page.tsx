@@ -19,6 +19,7 @@ import {
   SheetTitle,
   SheetTrigger,
 } from "@/components/ui/sheet";
+import Link from "next/link";
 
 interface Report {
   id: string;
@@ -77,10 +78,13 @@ function MapContent() {
     const zoom = searchParams.get('zoom');
 
     if (lat && lng) {
+      const lonNum = parseFloat(lng);
+      const latNum = parseFloat(lat);
       setMapView({
-        center: [parseFloat(lng), parseFloat(lat)],
+        center: [lonNum, latNum],
         zoom: zoom ? parseFloat(zoom) : 18
       });
+      setSelectedCoords([lonNum, latNum]);
     }
 
     // Load votes from localStorage
@@ -312,9 +316,9 @@ function MapContent() {
                   href="https://x.com/bikash1376"
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="inline-flex items-center gap-1 px-3 py-1 rounded-full bg-muted/50 text-[10px] italic text-muted-foreground hover:text-primary transition-colors ml-3 not-italic tracking-normal"
+                  className="inline-flex items-center gap-1 px-3 py-1 rounded-full bg-muted/50 text-[10px] text-muted-foreground hover:text-primary transition-colors ml-3 tracking-normal"
                 >
-                  <span className="italic">by Bikash</span>
+                  <span className="italic font-normal">by Bikash</span>
                   {/* by XXXXXX <Twitter className="h-3 w-3 fill-current" /> */}
                 </a>
               </SheetTitle>
@@ -322,18 +326,7 @@ function MapContent() {
                 Crowdsourcing waste and sewage issues across India. Our goal is a cleaner nation through transparent public reporting.
               </SheetDescription> */}
             </SheetHeader>
-            <div className=" space-y-6">
-              <div className="flex items-center gap-6 mt-2">
-                <div className="flex items-center gap-2 text-muted-foreground/60 text-[11px] font-medium tex">
-                  <Eye className="h-3.5 w-3.5" />
-                  {views.toLocaleString()} Views
-                </div>
-                {/* <div className="flex items-center gap-2 text-muted-foreground/60 text-[11px] font-medium">
-                  <Flame className="h-3.5 w-3.5" />
-                  {reports.length} Reports
-                </div> */}
-              </div>
-
+            <div className="mt-8 space-y-6">
               <div className="p-4 rounded-2xl bg-primary/5 border border-primary/10 flex items-start gap-3">
                 <div className="h-8 w-8 rounded-full bg-primary/10 flex items-center justify-center shrink-0">
                   <Info className="h-4 w-4 text-primary" />
@@ -345,8 +338,15 @@ function MapContent() {
                   </p>
                 </div>
               </div>
+            </div>
 
-
+            <div className="absolute bottom-6 left-6 right-6 pt-4 border-t border-border/40">
+              <div className="flex items-center gap-2 text-muted-foreground/40 text-[10px] font-medium tracking-tight">
+              <Link href="https://unswachh.vercel.app/admin">
+                <Eye className="h-3 w-3" />
+                {views.toLocaleString()} visits
+                </Link>
+              </div>
             </div>
           </SheetContent>
         </Sheet>
@@ -359,6 +359,6 @@ function MapContent() {
         {/* Simple Footer Text */}
 
       </div>
-    </main >
+    </main>
   );
 }

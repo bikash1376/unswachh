@@ -132,7 +132,7 @@ export function ReportDialog({ coordinates }: ReportDialogProps) {
             <DialogTrigger asChild>
                 <Button
                     size="lg"
-                    className="rounded-full shadow-2xl bg-background/60 backdrop-blur-xl border border-white/20 text-foreground hover:bg-background/80 hover:scale-105 transition-all h-14 px-8 text-base font-bold"
+                    className="rounded-full shadow-2xl bg-background/60 backdrop-blur-xl border border-white/20 text-foreground hover:bg-background/80 hover:scale-105 transition-all h-14 mb-8 md:mb-2 px-8 text-base font-bold"
                 >
                     <Camera className="mr-3 h-6 w-6 text-primary" />
                     Report Issue
