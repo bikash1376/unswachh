@@ -5,10 +5,10 @@ import { useSearchParams } from "next/navigation";
 import { Map, MapControls, MapMarker, MarkerContent, MarkerPopup } from "@/components/ui/map";
 import { ReportDialog } from "@/components/ReportDialog";
 import { db } from "@/lib/firebase";
-import { collection, query, where, onSnapshot, doc, updateDoc, increment } from "firebase/firestore";
+import { collection, query, where, onSnapshot, doc, updateDoc, increment, getDoc, setDoc } from "firebase/firestore";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { MapPin, Info, Download, Navigation, ExternalLink, Menu, Twitter } from "lucide-react";
+import { MapPin, Info, Download, Navigation, ExternalLink, Menu, Twitter, Eye, Flame } from "lucide-react";
 import { BiUpvote, BiSolidUpvote, BiDownvote, BiSolidDownvote } from "react-icons/bi";
 import { toast } from "sonner";
 import {
@@ -45,6 +45,7 @@ function MapContent() {
   const [reports, setReports] = useState<Report[]>([]);
   const [selectedCoords, setSelectedCoords] = useState<[number, number] | null>(null);
   const [userVotes, setUserVotes] = useState<Record<string, 'up' | 'down'>>({});
+  const [views, setViews] = useState<number>(0);
   const mapRef = useRef<any>(null);
   const searchParams = useSearchParams();
 
@@ -55,7 +56,22 @@ function MapContent() {
   });
 
   useEffect(() => {
-    // Check for query parameters to center map
+    // 1. Increment and fetch views
+    const updateViews = async () => {
+      const statsRef = doc(db, "stats", "website");
+      try {
+        await setDoc(statsRef, { views: increment(1) }, { merge: true });
+        const snap = await getDoc(statsRef);
+        if (snap.exists()) {
+          setViews(snap.data().views || 0);
+        }
+      } catch (e) {
+        console.error("Failed to update views", e);
+      }
+    };
+    updateViews();
+
+    // 2. Check for query parameters to center map
     const lat = searchParams.get('lat');
     const lng = searchParams.get('lng');
     const zoom = searchParams.get('zoom');
@@ -296,8 +312,9 @@ function MapContent() {
                   href="https://x.com/bikash1376"
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-primary/10 border border-primary/20 text-[10px] font-bold text-primary hover:bg-primary hover:text-primary-foreground transition-all shadow-sm ml-3 not-italic tracking-normal"
-                >by Bikash
+                  className="inline-flex items-center gap-1 px-3 py-1 rounded-full bg-muted/50 text-[10px] italic text-muted-foreground hover:text-primary transition-colors ml-3 not-italic tracking-normal"
+                >
+                  <span className="italic">by Bikash</span>
                   {/* by XXXXXX <Twitter className="h-3 w-3 fill-current" /> */}
                 </a>
               </SheetTitle>
@@ -305,7 +322,18 @@ function MapContent() {
                 Crowdsourcing waste and sewage issues across India. Our goal is a cleaner nation through transparent public reporting.
               </SheetDescription> */}
             </SheetHeader>
-            <div className="mt-8 space-y-6">
+            <div className=" space-y-6">
+              <div className="flex items-center gap-6 mt-2">
+                <div className="flex items-center gap-2 text-muted-foreground/60 text-[11px] font-medium tex">
+                  <Eye className="h-3.5 w-3.5" />
+                  {views.toLocaleString()} Views
+                </div>
+                {/* <div className="flex items-center gap-2 text-muted-foreground/60 text-[11px] font-medium">
+                  <Flame className="h-3.5 w-3.5" />
+                  {reports.length} Reports
+                </div> */}
+              </div>
+
               <div className="p-4 rounded-2xl bg-primary/5 border border-primary/10 flex items-start gap-3">
                 <div className="h-8 w-8 rounded-full bg-primary/10 flex items-center justify-center shrink-0">
                   <Info className="h-4 w-4 text-primary" />
@@ -331,6 +359,6 @@ function MapContent() {
         {/* Simple Footer Text */}
 
       </div>
-    </main>
+    </main >
   );
 }
