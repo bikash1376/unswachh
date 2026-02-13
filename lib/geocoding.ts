@@ -21,13 +21,21 @@ export async function getAddressFromCoords(lat: number, lng: number): Promise<st
         }
 
         const address = data.address;
-        const parts = [
-            address.road || address.suburb || address.neighbourhood,
-            address.city || address.town || address.village,
-            address.state,
-        ].filter(Boolean);
 
-        return parts.join(", ") || data.display_name || "Unknown Location";
+        // Prioritize specific location names
+        const specificName = address.amenity || address.shop || address.building || address.tourism || address.historic || address.leisure;
+
+        const parts = [
+            specificName, // e.g. "Taj Mahal" or "Starbucks"
+            address.house_number,
+            address.road || address.pedestrian || address.footway,
+            address.suburb || address.neighbourhood || address.residential,
+            address.city || address.town || address.village || address.county,
+            address.state
+        ].filter(Boolean); // Remove undefined/null/empty strings
+
+        // formatted address or fallback to display_name
+        return parts.length > 0 ? parts.join(", ") : (data.display_name || "Unknown Location");
     } catch (error) {
         console.error("Geocoding error:", error);
         return "Location unavailable";

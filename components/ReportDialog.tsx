@@ -34,7 +34,11 @@ export function ReportDialog({ coordinates }: ReportDialogProps) {
     const [locationName, setLocationName] = useState<string>("Detecting address...");
     const fileInputRef = useRef<HTMLInputElement>(null);
 
+    const [internalCoordinates, setInternalCoordinates] = useState<[number, number] | null>(coordinates);
+    const [isLocating, setIsLocating] = useState(false);
+
     useEffect(() => {
+        setInternalCoordinates(coordinates);
         if (coordinates) {
             setLocationName("Detecting address...");
             getAddressFromCoords(coordinates[1], coordinates[0]).then(setLocationName);
@@ -42,6 +46,33 @@ export function ReportDialog({ coordinates }: ReportDialogProps) {
             setLocationName("Point on map to select");
         }
     }, [coordinates]);
+
+    const handleUseLocation = () => {
+        if (!navigator.geolocation) {
+            toast.error("Geolocation is not supported by your browser");
+            return;
+        }
+
+        setIsLocating(true);
+        toast.info("Fetching your location...");
+
+        navigator.geolocation.getCurrentPosition(
+            (position) => {
+                const { latitude, longitude } = position.coords;
+                setInternalCoordinates([longitude, latitude]);
+                setLocationName("Detecting address...");
+                getAddressFromCoords(latitude, longitude).then(setLocationName);
+                setIsLocating(false);
+                toast.success("Updated to your current location");
+            },
+            (error) => {
+                console.error("Geolocation error:", error);
+                toast.error("Could not fetch location. Please enable permissions.");
+                setIsLocating(false);
+            },
+            { enableHighAccuracy: true }
+        );
+    };
 
     const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const file = e.target.files?.[0];
@@ -57,7 +88,7 @@ export function ReportDialog({ coordinates }: ReportDialogProps) {
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
-        if (!coordinates) {
+        if (!internalCoordinates) {
             toast.error("Please select a location on the map first.");
             return;
         }
@@ -76,8 +107,8 @@ export function ReportDialog({ coordinates }: ReportDialogProps) {
             const tooClose = snapshot.docs.some(doc => {
                 const data = doc.data();
                 const dist = calculateDistance(
-                    coordinates[1],
-                    coordinates[0],
+                    internalCoordinates[1],
+                    internalCoordinates[0],
                     data.latitude,
                     data.longitude
                 );
@@ -102,8 +133,8 @@ export function ReportDialog({ coordinates }: ReportDialogProps) {
                 description,
                 imageUrl,
                 locationName,
-                latitude: coordinates[1],
-                longitude: coordinates[0],
+                latitude: internalCoordinates[1],
+                longitude: internalCoordinates[0],
                 status: "in-review",
                 upvotes: 0,
                 createdAt: serverTimestamp(),
@@ -163,14 +194,27 @@ export function ReportDialog({ coordinates }: ReportDialogProps) {
                         />
                     </div>
                     <div className="space-y-2">
-                        <Label>Location</Label>
+                        <div className="flex items-center justify-between">
+                            <Label>Location</Label>
+                            <Button
+                                type="button"
+                                variant="outline"
+                                size="sm"
+                                onClick={handleUseLocation}
+                                disabled={isLocating}
+                                className="h-7 text-xs gap-1.5"
+                            >
+                                {isLocating ? <Loader2 className="h-3 w-3 animate-spin" /> : <MapPin className="h-3 w-3" />}
+                                Use My Location
+                            </Button>
+                        </div>
                         <div className="flex items-start gap-2 text-sm text-muted-foreground bg-muted p-2 rounded-md">
                             <MapPin className="h-4 w-4 mt-0.5 shrink-0" />
                             <div className="flex flex-col">
                                 <span className="font-medium text-foreground">{locationName}</span>
-                                {coordinates && (
+                                {internalCoordinates && (
                                     <span className="text-[10px]">
-                                        {coordinates[1].toFixed(5)}, {coordinates[0].toFixed(5)}
+                                        {internalCoordinates[1].toFixed(5)}, {internalCoordinates[0].toFixed(5)}
                                     </span>
                                 )}
                             </div>
