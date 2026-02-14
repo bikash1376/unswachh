@@ -8,7 +8,7 @@ import { db } from "@/lib/firebase";
 import { collection, query, where, onSnapshot, doc, updateDoc, increment, getDoc, setDoc } from "firebase/firestore";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { MapPin, Info, Download, Navigation, ExternalLink, Menu, Twitter, Eye, Flame } from "lucide-react";
+import { MapPin, Info, Download, Navigation, ExternalLink, Menu,  Eye, } from "lucide-react";
 import { BiUpvote, BiSolidUpvote, BiDownvote, BiSolidDownvote } from "react-icons/bi";
 import { toast } from "sonner";
 import {
