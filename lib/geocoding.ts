@@ -4,7 +4,7 @@ export async function getAddressFromCoords(lat: number, lng: number): Promise<st
             `https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lng}&zoom=18&addressdetails=1`,
             {
                 headers: {
-                    "User-Agent": "Unswachh-App",
+                    "User-Agent": "NotSoSwachh-App",
                 },
             }
         );

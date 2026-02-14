@@ -88,7 +88,7 @@ function MapContent() {
     }
 
     // Load votes from localStorage
-    const saved = localStorage.getItem("unswachh_votes");
+    const saved = localStorage.getItem("not_so_swachh_votes");
     if (saved) {
       try {
         setUserVotes(JSON.parse(saved));
@@ -141,7 +141,7 @@ function MapContent() {
 
       const newUserVotes = { ...userVotes, [reportId]: type };
       setUserVotes(newUserVotes);
-      localStorage.setItem("unswachh_votes", JSON.stringify(newUserVotes));
+      localStorage.setItem("not_so_swachh_votes", JSON.stringify(newUserVotes));
       toast.success(type === 'up' ? "Upvoted!" : "Downvoted!");
     } catch (error) {
       toast.error("Failed to process vote.");
@@ -208,7 +208,7 @@ function MapContent() {
                       size="icon"
                       variant="secondary"
                       className="rounded-full h-10 w-10 shadow-lg hover:scale-110 transition-transform"
-                      onClick={() => downloadImage(report.imageUrl, `unswachh-${report.id}.jpg`)}
+                      onClick={() => downloadImage(report.imageUrl, `not-so-swachh-${report.id}.jpg`)}
                     >
                       <Download className="h-5 w-5" />
                     </Button>
@@ -311,7 +311,7 @@ function MapContent() {
           <SheetContent side="left" className="w-[300px] sm:w-[350px] border-r-border/50 bg-background/95 backdrop-blur-xl text-card-foreground">
             <SheetHeader>
               <SheetTitle className="text-3xl font-black italic tracking-tighter text-primary flex items-center">
-                UNSWACHH
+                NOT SO SWACHH
                 <a
                   href="https://x.com/bikash1376"
                   target="_blank"
@@ -342,9 +342,9 @@ function MapContent() {
 
             <div className="absolute bottom-6 left-6 right-6 pt-4 border-t border-border/40">
               <div className="flex items-center gap-2 text-muted-foreground/40 text-[10px] font-medium tracking-tight">
-              <Link href="https://unswachh.vercel.app/admin">
-                <Eye className="h-3 w-3" />
-                {views.toLocaleString()} visits
+                <Link href="https://not-so-swachh.vercel.app/admin">
+                  <Eye className="h-3 w-3" />
+                  {views.toLocaleString()} visits
                 </Link>
               </div>
             </div>

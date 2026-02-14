@@ -13,7 +13,7 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Unswachh",
+  title: "NotSoSwachh",
   description: "A community-driven platform to keep our country clean.",
 };
 

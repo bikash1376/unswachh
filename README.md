@@ -1,40 +1,49 @@
-# 🇮🇳 Unswachh
+Important links to proceed with:
+https://console.cloud.google.com/freetrial/signup/billing/IN?authuser=4
+https://developers.google.com/maps/documentation/geocoding/usage-and-billing
+https://unswachh.vercel.app/    
+
+# NotSoSwachh
+
+![alt text](image.png)
 
 **Crowdsourcing a cleaner India, one report at a time.**
 
-Unswachh is a map-based reporting platform designed to empower citizens to identify and report waste, sewage, and public hygiene issues. By leveraging community-driven verification and transparent public data, we aim to bridge the gap between reported issues and official action.
+
+
+NotSoSwachh is a map-based reporting platform designed to empower citizens to identify and report waste, sewage, and public hygiene issues. By leveraging community-driven verification and transparent public data, we aim to bridge the gap between reported issues and official action.
 
 ---
 
-## 🌟 Key Features
+## Key Features
 
-- **📍 Map-Based Reporting**: Precision location marking using interactive maps.
-- **📸 Evidence Submission**: Instant photo upload with client-side compression for efficiency.
-- **🏢 Reverse Geocoding**: Automatically detects human-readable addresses for all reports.
-- **🔼 Community Voting**: Reddit-style upvoting and downvoting to prioritize urgent issues.
-- **🛡️ Shielded Admin Panel**: Secure dashboard for moderators to approve, edit, or remove reports.
-- **🚨 Proximity Detection**: Intelligent 50m radius check to prevent duplicate reporting of the same issue.
-- **🧭 Navigation Ready**: Direct links to Google Maps and the official Swachh Bharat app.
+- **Map-Based Reporting**: Precision location marking using interactive maps.
+- **Evidence Submission**: Instant photo upload with client-side compression for efficiency.
+- **Reverse Geocoding**: Automatically detects human-readable addresses for all reports.
+- **Community Voting**: Reddit-style upvoting and downvoting to prioritize urgent issues.
+- **Shielded Admin Panel**: Secure dashboard for moderators to approve, edit, or remove reports.
+- **Proximity Detection**: Intelligent 50m radius check to prevent duplicate reporting of the same issue.
+- **Navigation Ready**: Direct links to Google Maps and the official Swachh Bharat app.
 
 ---
 
-## 🚀 Tech Stack
+## Tech Stack
 
 - **Framework**: [Next.js 15](https://nextjs.org/) (App Router)
 - **Styling**: [Tailwind CSS v4](https://tailwindcss.com/) + [Shadcn/UI](https://ui.shadcn.com/)
 - **Database**: [Firebase Firestore](https://firebase.google.com/products/firestore)
 - **Storage**: [Cloudinary](https://cloudinary.com/) (Unsigned Uploads)
-- **Maps**: [MapLibre GL](https://maplibre.org/)
+- **Maps**: Mapcn.dev (Uses MapLibre GL under the hood)
 - **Icons**: [Lucide React](https://lucide.dev/) + [React Icons](https://react-icons.github.io/react-icons/)
 
 ---
 
-## 🛠️ Getting Started
+## Getting Started
 
 ### 1. Clone & Install
 ```bash
-git clone https://github.com/bikash1376/unswachh.git
-cd unswachh
+git clone https://github.com/bikash1376/not-so-swachh.git
+cd not-so-swachh
 npm install
 ```
 
@@ -64,8 +73,8 @@ npm run dev
 
 ---
 
-## 🤝 Contributing
+## Contributing
 Contributions are welcome! Feel free to open issues or submit pull requests to help make India cleaner.
 
-## 👨‍💻 Created by
+## Created by
 **Bikash** - [Follow on X](https://x.com/bikash1376)
