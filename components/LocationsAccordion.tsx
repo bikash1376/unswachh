@@ -18,7 +18,7 @@ interface Report {
 
 interface LocationsAccordionProps {
     reports: Report[];
-    onSelectLocation: (lat: number, lng: number) => void;
+    onSelectLocation: (lat: number, lng: number, reportId: string) => void;
 }
 
 export function LocationsAccordion({ reports, onSelectLocation }: LocationsAccordionProps) {
@@ -63,7 +63,7 @@ export function LocationsAccordion({ reports, onSelectLocation }: LocationsAccor
                                 variant="ghost"
                                 size="sm"
                                 className="justify-start h-auto py-2 px-2 text-xs text-left font-normal whitespace-normal hover:bg-muted/50"
-                                onClick={() => onSelectLocation(report.latitude, report.longitude)}
+                                onClick={() => onSelectLocation(report.latitude, report.longitude, report.id)}
                             >
                                 <MapPin className="h-3 w-3 mr-2 shrink-0 opacity-50 text-primary" />
                                 <span className="line-clamp-2">

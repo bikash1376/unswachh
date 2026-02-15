@@ -171,14 +171,13 @@ function MapContent() {
     });
   };
 
-  const handleSidebarLocationSelect = (lat: number, lng: number) => {
+  const handleSidebarLocationSelect = (lat: number, lng: number, reportId: string) => {
+    setSelectedReportId(reportId);
     mapRef.current?.flyTo({
       center: [lng, lat],
       zoom: 16,
       duration: 2000
     });
-    // Close sheet on mobile if needed, but we don't have ref to sheet.
-    // For now just fly.
   };
 
   const handleVote = async (reportId: string, type: 'up' | 'down') => {
