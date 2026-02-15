@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { db } from "@/lib/firebase";
+import { verifyAdminPassword } from "@/app/actions";
 import {
     collection,
     onSnapshot,
@@ -42,7 +43,7 @@ import {
     AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
 import { toast } from "sonner";
-import { Check, Trash2, Edit2, ExternalLink, Lock, LayoutDashboard, Navigation } from "lucide-react";
+import { Check, Trash2, Edit2, ExternalLink, Lock, LayoutDashboard, Navigation, Download } from "lucide-react";
 
 interface Report {
     id: string;
@@ -56,10 +57,47 @@ interface Report {
     createdAt: any;
 }
 
-const ADMIN_PASSWORD = process.env.NEXT_PUBLIC_ADMIN_PASSWORD;
+function generateTweetUrl(report: Report): string {
+    const lines: string[] = [];
+    lines.push(`🚨 Unswachh Report: ${report.title}`);
+    if (report.description) {
+        lines.push(`"${report.description}"`);
+    }
+    lines.push(`📍 ${report.locationName || 'Unknown Location'}`);
+    lines.push(`🗺️ https://www.google.com/maps/search/?api=1&query=${report.latitude},${report.longitude}`);
+    lines.push(``);
+    lines.push(`@tag_respected_authority`);
+    lines.push(`#Unswachh #SwachhBharat #CleanIndia`);
+
+    const text = lines.join('\n');
+    const encodedText = encodeURIComponent(text);
+    const url = encodeURIComponent(`https://unswachh.vercel.app/?lat=${report.latitude}&lng=${report.longitude}&zoom=18`);
+    return `https://x.com/intent/tweet?text=${encodedText}&url=${url}`;
+}
+
+function downloadImage(imageUrl: string, filename: string) {
+    fetch(imageUrl)
+        .then(res => res.blob())
+        .then(blob => {
+            const blobUrl = window.URL.createObjectURL(blob);
+            const link = document.createElement('a');
+            link.href = blobUrl;
+            link.download = filename;
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            window.URL.revokeObjectURL(blobUrl);
+        })
+        .catch(() => toast.error('Failed to download image.'));
+}
 
 export default function AdminPage() {
-    const [isAuthenticated, setIsAuthenticated] = useState(false);
+    const [isAuthenticated, setIsAuthenticated] = useState(() => {
+        if (typeof window !== 'undefined') {
+            return sessionStorage.getItem('unswachh_admin') === 'true';
+        }
+        return false;
+    });
     const [password, setPassword] = useState("");
     const [reports, setReports] = useState<Report[]>([]);
     const [loading, setLoading] = useState(true);
@@ -80,13 +118,23 @@ export default function AdminPage() {
         return () => unsubscribe();
     }, [isAuthenticated]);
 
-    const handleLogin = (e: React.FormEvent) => {
+    const handleLogin = async (e: React.FormEvent) => {
         e.preventDefault();
-        if (password === ADMIN_PASSWORD) {
-            setIsAuthenticated(true);
-            toast.success("Welcome, Admin");
-        } else {
-            toast.error("Incorrect password");
+        setLoading(true);
+        try {
+            const isValid = await verifyAdminPassword(password);
+            if (isValid) {
+                setIsAuthenticated(true);
+                sessionStorage.setItem('unswachh_admin', 'true');
+                toast.success("Welcome, Admin");
+            } else {
+                toast.error("Incorrect password");
+            }
+        } catch (error) {
+            console.error(error);
+            toast.error("Login failed due to an error.");
+        } finally {
+            setLoading(false);
         }
     };
 
@@ -147,9 +195,12 @@ export default function AdminPage() {
                 <div className="max-w-7xl mx-auto flex items-center justify-between">
                     <div className="flex items-center gap-3">
                         <LayoutDashboard className="h-6 w-6 text-primary" />
-                        <h1 className="text-xl font-bold tracking-tight">NotSoSwachh Admin</h1>
+                        <h1 className="text-xl font-bold tracking-tight">Unswachh Admin</h1>
                     </div>
-                    <Button variant="outline" size="sm" onClick={() => setIsAuthenticated(false)}>
+                    <Button variant="outline" size="sm" onClick={() => {
+                        setIsAuthenticated(false);
+                        sessionStorage.removeItem('unswachh_admin');
+                    }}>
                         Logout
                     </Button>
                 </div>
@@ -243,10 +294,10 @@ function ReportTable({
                                 </Badge>
                             </TableCell>
                             <TableCell className="text-right">
-                                <div className="flex justify-end gap-2">
+                                <div className="flex justify-end gap-2 flex-wrap">
                                     <Button variant="outline" size="icon" title="View location on map" asChild>
                                         <a
-                                            href={`/?lat=${report.latitude}&lng=${report.longitude}&zoom=18`}
+                                            href={`/?lat=${report.latitude}&lng=${report.longitude}&zoom=18&reportId=${report.id}`}
                                             target="_blank"
                                             rel="noopener noreferrer"
                                         >
@@ -258,6 +309,33 @@ function ReportTable({
                                             <ExternalLink className="h-4 w-4" />
                                         </a>
                                     </Button>
+                                    <Button
+                                        variant="outline"
+                                        size="icon"
+                                        title="Download image"
+                                        onClick={() => downloadImage(report.imageUrl, `unswachh-${report.id}.jpg`)}
+                                    >
+                                        <Download className="h-4 w-4" />
+                                    </Button>
+                                    {report.status === "approved" && (
+                                        <Button
+                                            variant="outline"
+                                            size="icon"
+                                            title="Tweet this report on X"
+                                            asChild
+                                            className="text-sky-500 hover:text-sky-600 hover:bg-sky-50 dark:hover:bg-sky-950"
+                                        >
+                                            <a
+                                                href={generateTweetUrl(report)}
+                                                target="_blank"
+                                                rel="noopener noreferrer"
+                                            >
+                                                <svg className="h-4 w-4" viewBox="0 0 24 24" fill="currentColor">
+                                                    <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z" />
+                                                </svg>
+                                            </a>
+                                        </Button>
+                                    )}
                                     {onApprove && report.status === "in-review" && (
                                         <Button
                                             variant="default"

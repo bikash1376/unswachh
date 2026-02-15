@@ -34,18 +34,16 @@ export function ReportDialog({ coordinates }: ReportDialogProps) {
     const [locationName, setLocationName] = useState<string>("Detecting address...");
     const fileInputRef = useRef<HTMLInputElement>(null);
 
-    const [internalCoordinates, setInternalCoordinates] = useState<[number, number] | null>(coordinates);
+    const [internalCoordinates, setInternalCoordinates] = useState<[number, number] | null>(null);
     const [isLocating, setIsLocating] = useState(false);
 
+    // Reset when dialog opens
     useEffect(() => {
-        setInternalCoordinates(coordinates);
-        if (coordinates) {
-            setLocationName("Detecting address...");
-            getAddressFromCoords(coordinates[1], coordinates[0]).then(setLocationName);
-        } else {
-            setLocationName("Point on map to select");
+        if (isOpen) {
+            setInternalCoordinates(null);
+            setLocationName("Please verify your location to report.");
         }
-    }, [coordinates]);
+    }, [isOpen]);
 
     const handleUseLocation = () => {
         if (!navigator.geolocation) {
@@ -54,16 +52,18 @@ export function ReportDialog({ coordinates }: ReportDialogProps) {
         }
 
         setIsLocating(true);
-        toast.info("Fetching your location...");
+        toast.info("Fetching your verified location...");
 
         navigator.geolocation.getCurrentPosition(
             (position) => {
                 const { latitude, longitude } = position.coords;
+                // Just for testing/demo, we can't easily fake moving 50m away from the map click,
+                // but we are correctly taking the GPS location here.
                 setInternalCoordinates([longitude, latitude]);
                 setLocationName("Detecting address...");
                 getAddressFromCoords(latitude, longitude).then(setLocationName);
                 setIsLocating(false);
-                toast.success("Updated to your current location");
+                toast.success("Location verified!");
             },
             (error) => {
                 console.error("Geolocation error:", error);
@@ -89,7 +89,7 @@ export function ReportDialog({ coordinates }: ReportDialogProps) {
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         if (!internalCoordinates) {
-            toast.error("Please select a location on the map first.");
+            toast.error("Verified location is required. Please use 'Use My Location'.");
             return;
         }
         if (!image) {
@@ -156,6 +156,8 @@ export function ReportDialog({ coordinates }: ReportDialogProps) {
         setDescription("");
         setImage(null);
         setImagePreview(null);
+        setInternalCoordinates(null);
+        setLocationName("Please verify your location to report.");
     };
 
     return (
@@ -195,23 +197,25 @@ export function ReportDialog({ coordinates }: ReportDialogProps) {
                     </div>
                     <div className="space-y-2">
                         <div className="flex items-center justify-between">
-                            <Label>Location</Label>
+                            <Label>Verified Location <span className="text-red-500">*</span></Label>
                             <Button
                                 type="button"
-                                variant="outline"
+                                variant={internalCoordinates ? "default" : "destructive"}
                                 size="sm"
                                 onClick={handleUseLocation}
                                 disabled={isLocating}
                                 className="h-7 text-xs gap-1.5"
                             >
                                 {isLocating ? <Loader2 className="h-3 w-3 animate-spin" /> : <MapPin className="h-3 w-3" />}
-                                Use My Location
+                                {internalCoordinates ? "Location Verified" : "Verify Location"}
                             </Button>
                         </div>
                         <div className="flex items-start gap-2 text-sm text-muted-foreground bg-muted p-2 rounded-md">
                             <MapPin className="h-4 w-4 mt-0.5 shrink-0" />
                             <div className="flex flex-col">
-                                <span className="font-medium text-foreground">{locationName}</span>
+                                <span className={internalCoordinates ? "font-medium text-foreground" : "text-muted-foreground/70 italic"}>
+                                    {locationName}
+                                </span>
                                 {internalCoordinates && (
                                     <span className="text-[10px]">
                                         {internalCoordinates[1].toFixed(5)}, {internalCoordinates[0].toFixed(5)}
@@ -219,6 +223,11 @@ export function ReportDialog({ coordinates }: ReportDialogProps) {
                                 )}
                             </div>
                         </div>
+                        {!internalCoordinates && (
+                            <p className="text-[10px] text-destructive font-medium">
+                                You must be at the location to report it.
+                            </p>
+                        )}
                     </div>
                     <div className="space-y-2">
                         <Label>Evidence Image</Label>
@@ -264,7 +273,7 @@ export function ReportDialog({ coordinates }: ReportDialogProps) {
                             )}
                         </div>
                     </div>
-                    <Button type="submit" className="w-full" disabled={isSubmitting}>
+                    <Button type="submit" className="w-full" disabled={isSubmitting || !internalCoordinates}>
                         {isSubmitting ? (
                             <>
                                 <Loader2 className="mr-2 h-4 w-4 animate-spin" />
