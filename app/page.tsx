@@ -56,6 +56,7 @@ function MapContent() {
   // Location & Interaction State
   const [selectedReportId, setSelectedReportId] = useState<string | null>(null);
   const [hasLocationPermission, setHasLocationPermission] = useState<boolean>(false);
+  const [sidebarOpen, setSidebarOpen] = useState(false);
 
   // Initial Map View
   const [mapView, setMapView] = useState({
@@ -173,6 +174,7 @@ function MapContent() {
 
   const handleSidebarLocationSelect = (lat: number, lng: number, reportId: string) => {
     setSelectedReportId(reportId);
+    setSidebarOpen(false);
     mapRef.current?.flyTo({
       center: [lng, lat],
       zoom: 16,
@@ -257,8 +259,8 @@ function MapContent() {
         const report = reports.find(r => r.id === selectedReportId);
         if (!report) return null;
         return (
-          <div className="absolute top-4 right-4 z-50 max-h-[calc(100vh-2rem)] overflow-y-auto animate-in slide-in-from-right-5 fade-in-0 duration-300">
-            <Card className="w-80 border shadow-2xl bg-card rounded-2xl overflow-hidden">
+          <div className="absolute top-4 right-4 z-50 max-h-[calc(100vh-2rem)] overflow-y-auto animate-in slide-in-from-right-5 fade-in-0 duration-300 w-64 sm:w-80">
+            <Card className="border shadow-2xl bg-card rounded-2xl overflow-hidden">
               <div className="relative aspect-video w-full overflow-hidden bg-muted">
                 <img
                   src={report.imageUrl}
@@ -359,7 +361,7 @@ function MapContent() {
 
       {/* Floating Header UI */}
       <div className="absolute top-6 left-6 z-10">
-        <Sheet>
+        <Sheet open={sidebarOpen} onOpenChange={setSidebarOpen}>
           <SheetTrigger asChild>
             <Button variant="outline" size="icon" className="h-12 w-12 rounded-2xl shadow-2xl backdrop-blur-md bg-background/80 border-border/50">
               <Menu className="h-6 w-6" />
