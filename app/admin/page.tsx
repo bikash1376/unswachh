@@ -43,7 +43,7 @@ import {
     AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
 import { toast } from "sonner";
-import { Check, Trash2, Edit2, ExternalLink, Lock, LayoutDashboard, Navigation, Download } from "lucide-react";
+import { Check, Trash2, Edit2, ExternalLink, Lock, LayoutDashboard, Navigation, Download, Link2 } from "lucide-react";
 
 interface Report {
     id: string;
@@ -55,6 +55,7 @@ interface Report {
     longitude: number;
     status: "in-review" | "approved";
     createdAt: any;
+    twitterLink?: string;
 }
 
 function generateTweetUrl(report: Report): string {
@@ -241,6 +242,8 @@ function ReportTable({
     onApprove?: (id: string) => void;
     onDelete: (id: string) => void;
 }) {
+    const [editingLink, setEditingLink] = useState<string | null>(null);
+    const [linkValue, setLinkValue] = useState("");
     if (reports.length === 0) {
         return (
             <Card className="border-dashed py-20 text-center">
@@ -286,6 +289,53 @@ function ReportTable({
                                 </div>
                                 <div className="text-[10px] font-mono text-muted-foreground mt-1">
                                     {report.latitude.toFixed(4)}, {report.longitude.toFixed(4)}
+                                </div>
+                                <div className="mt-1.5">
+                                    {editingLink === report.id ? (
+                                        <div className="flex items-center gap-1">
+                                            <Input
+                                                value={linkValue}
+                                                onChange={(e) => setLinkValue(e.target.value)}
+                                                placeholder="https://x.com/..."
+                                                className="h-7 text-[11px] w-40"
+                                                autoFocus
+                                                onKeyDown={(e) => {
+                                                    if (e.key === 'Escape') setEditingLink(null);
+                                                }}
+                                            />
+                                            <Button
+                                                size="icon"
+                                                variant="ghost"
+                                                className="h-7 w-7 shrink-0"
+                                                onClick={async () => {
+                                                    try {
+                                                        await updateDoc(doc(db, "reports", report.id), { twitterLink: linkValue || null });
+                                                        toast.success("Link saved");
+                                                        setEditingLink(null);
+                                                    } catch {
+                                                        toast.error("Failed to save link");
+                                                    }
+                                                }}
+                                            >
+                                                <Check className="h-3 w-3" />
+                                            </Button>
+                                        </div>
+                                    ) : (
+                                        <button
+                                            className="inline-flex items-center gap-1 text-[10px] text-muted-foreground hover:text-primary transition-colors"
+                                            onClick={() => {
+                                                setEditingLink(report.id);
+                                                setLinkValue(report.twitterLink || "");
+                                            }}
+                                        >
+                                            <Link2 className="h-3 w-3" />
+                                            {report.twitterLink ? (
+                                                <span className="underline truncate max-w-[120px]">{report.twitterLink}</span>
+                                            ) : (
+                                                <span className="italic">Add tweet link</span>
+                                            )}
+                                        </button>
+                                    )}
                                 </div>
                             </TableCell>
                             <TableCell>

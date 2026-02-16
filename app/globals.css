@@ -125,6 +125,23 @@
   body {
     @apply bg-background text-foreground;
   }
+
+  /* Global cursor-pointer for all clickable elements */
+  button,
+  a,
+  [role="button"],
+  [tabindex]:not([tabindex="-1"]),
+  input[type="submit"],
+  input[type="button"],
+  input[type="reset"],
+  input[type="checkbox"],
+  input[type="radio"],
+  select,
+  label[for],
+  summary {
+    cursor: pointer;
+  }
+
   .maplibregl-popup-content {
     @apply bg-transparent! shadow-none! p-0! rounded-none!;
   }

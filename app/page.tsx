@@ -22,6 +22,7 @@ import {
 import Link from "next/link";
 
 import { LocationsAccordion } from "@/components/LocationsAccordion";
+import { FeedbackDialog } from "@/components/FeedbackDialog";
 
 interface Report {
   id: string;
@@ -33,6 +34,7 @@ interface Report {
   longitude: number;
   status: string;
   upvotes: number;
+  twitterLink?: string;
 }
 
 // Wrap the home content in Suspense to handle searchParams properly in Next.js
@@ -336,7 +338,7 @@ function MapContent() {
                     asChild
                   >
                     <a
-                      href="https://play.google.com/store/apps/details?id=com.ichangemycity.swachhbharat&hl=en-US"
+                      href={report.twitterLink || "https://x.com/bikash1376"}
                       target="_blank"
                       rel="noopener noreferrer"
                     >
@@ -367,57 +369,60 @@ function MapContent() {
               <Menu className="h-6 w-6" />
             </Button>
           </SheetTrigger>
-          <SheetContent side="left" className="w-[340px] sm:w-[400px] border-r-border/50 bg-background/95 backdrop-blur-xl text-card-foreground overflow-y-auto pt-10 px-6">
-            <SheetHeader className="mb-6 space-y-3">
-              <SheetTitle className="text-4xl font-black italic tracking-tighter text-primary flex flex-wrap items-center gap-3">
+          <SheetContent side="left" className="w-[340px] sm:w-[400px] border-r-border/50 bg-background/95 backdrop-blur-xl text-card-foreground overflow-y-auto pt-6 px-5">
+            <SheetHeader className="mb-3 space-y-1">
+              <SheetTitle className="text-3xl font-black italic tracking-tighter text-primary flex flex-wrap items-center gap-2">
                 UNSWACHH
                 <a
                   href="https://x.com/bikash1376"
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="inline-flex items-center gap-1 px-3 py-1 rounded-full bg-muted/50 text-[10px] text-muted-foreground hover:text-primary transition-colors tracking-normal"
+                  className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-muted/50 text-[10px] text-muted-foreground hover:text-primary transition-colors tracking-normal"
                 >
                   <span className="italic font-normal">by Bikash</span>
                 </a>
               </SheetTitle>
             </SheetHeader>
-            <div className="mt-8 space-y-4">
-              <div className="p-5 rounded-2xl bg-primary/5 border border-primary/10 flex items-start gap-4">
-                <div className="h-8 w-8 rounded-full bg-primary/10 flex items-center justify-center shrink-0">
-                  <Info className="h-4 w-4 text-primary" />
+            <div className="space-y-2">
+              <div className="p-3 rounded-xl bg-primary/5 border border-primary/10 flex items-start gap-3">
+                <div className="h-6 w-6 rounded-full bg-primary/10 flex items-center justify-center shrink-0 mt-0.5">
+                  <Info className="h-3 w-3 text-primary" />
                 </div>
-                <div className="space-y-1">
-                  <h4 className="font-bold text-sm">How to report?</h4>
-                  <p className="text-xs text-muted-foreground leading-relaxed">
-                    Simply click anywhere on the map to mark a location, then hit the &quot;Report Issue&quot; button at the bottom.
+                <div>
+                  <h4 className="font-bold text-xs">How to report?</h4>
+                  <p className="text-[11px] text-muted-foreground leading-snug">
+                    Click anywhere on the map, then hit &quot;Report Issue&quot; at the bottom.
                   </p>
                 </div>
               </div>
 
-              <div className="p-5 rounded-2xl bg-green-500/5 border border-green-500/10 flex items-start gap-4">
-                <div className="h-8 w-8 rounded-full bg-green-500/10 flex items-center justify-center shrink-0">
-                  <ShieldCheck className="h-4 w-4 text-green-600" />
+              <div className="p-3 rounded-xl bg-green-500/5 border border-green-500/10 flex items-start gap-3">
+                <div className="h-6 w-6 rounded-full bg-green-500/10 flex items-center justify-center shrink-0 mt-0.5">
+                  <ShieldCheck className="h-3 w-3 text-green-600" />
                 </div>
-                <div className="space-y-1">
-                  <h4 className="font-bold text-sm">Your Privacy</h4>
-                  <p className="text-xs text-muted-foreground leading-relaxed">
-                    We do not track or collect your location. Location access is only used for reporting the issue and is never stored or shared.
+                <div>
+                  <h4 className="font-bold text-xs">Your Privacy</h4>
+                  <p className="text-[11px] text-muted-foreground leading-snug">
+                    We don&apos;t track your location. It&apos;s only used for reporting.
                   </p>
                 </div>
               </div>
             </div>
 
-            <div className="mt-6 border-t pt-4">
-              <h3 className="font-bold text-lg mb-2">Locations</h3>
+            <div className="mt-3 border-t pt-3">
+              <h3 className="font-bold text-sm mb-1">Locations</h3>
               <LocationsAccordion reports={reports} onSelectLocation={handleSidebarLocationSelect} />
             </div>
 
             <div className="absolute bottom-6 left-6 right-6 pt-4 border-t border-border/40">
-              <div className="flex items-center gap-2 text-muted-foreground/40 text-[10px] font-medium tracking-tight">
-                <Link href="https://unswachh.vercel.app/admin">
-                  <Eye className="h-3 w-3" />
-                  {views.toLocaleString()} visits
-                </Link>
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-2 text-muted-foreground/40 text-[10px] font-medium tracking-tight">
+                  <Link href="https://unswachh.vercel.app/admin">
+                    <Eye className="h-3 w-3" />
+                    {views.toLocaleString()} visits
+                  </Link>
+                </div>
+                <FeedbackDialog />
               </div>
             </div>
           </SheetContent>
